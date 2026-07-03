@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Fireworks Game</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+overflow:hidden;
+background:radial-gradient(circle at top,#1b2735,#090a0f 80%);
+cursor:crosshair;
+}
+
+canvas{
+display:block;
+}
+
+#ui{
+position:absolute;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+text-align:center;
+color:white;
+z-index:10;
+}
+
+h1{
+font-size:42px;
+color:#FFD700;
+text-shadow:0 0 20px gold;
+}
+
+#score{
+font-size:24px;
+margin-top:10px;
+}
+
+#msg{
+margin-top:20px;
+font-size:30px;
+color:#00ffcc;
+font-weight:bold;
+display:none;
+animation:pop .7s infinite alternate;
+}
+
+@keyframes pop{
+from{transform:scale(1);}
+to{transform:scale(1.08);}
+}
+</style>
+</head>
+
+<body>
+
+<div id="ui">
+<h1>🎆 Birthday Fireworks 🎆</h1>
+<p>Click anywhere to launch fireworks!</p>
+<div id="score">Fireworks: 0 / 20</div>
+
+<div id="msg">
+🎉 HAPPY BIRTHDAY! 🎉<br><br>
+You're an amazing friend.<br>
+May your life shine brighter than these fireworks! ❤️
+</div>
+
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let particles=[];
+let stars=[];
+
+let score=0;
+
+for(let i=0;i<200;i++){
+
+stars.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*2
+});
+
+}
+
+function drawStars(){
+
+ctx.fillStyle="white";
+
+stars.forEach(s=>{
+ctx.beginPath();
+ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+ctx.fill();
+});
+
+}
+
+class Particle{
+
+constructor(x,y,color){
+
+this.x=x;
+this.y=y;
+
+this.dx=(Math.random()-0.5)*10;
+this.dy=(Math.random()-0.5)*10;
+
+this.life=100;
+
+this.color=color;
+
+}
+
+update(){
+
+this.x+=this.dx;
+this.y+=this.dy;
+
+this.dy+=0.05;
+
+this.life--;
+
+}
+
+draw(){
+
+ctx.globalAlpha=this.life/100;
+
+ctx.fillStyle=this.color;
+
+ctx.beginPath();
+ctx.arc(this.x,this.y,3,0,Math.PI*2);
+ctx.fill();
+
+ctx.globalAlpha=1;
+
+}
+
+}
+
+function firework(x,y){
+
+const colors=[
+"#ff0040",
+"#00ffff",
+"#FFD700",
+"#00ff66",
+"#ff66ff",
+"#ffffff",
+"#ff8800"
+];
+
+let color=colors[Math.floor(Math.random()*colors.length)];
+
+for(let i=0;i<120;i++){
+
+particles.push(new Particle(x,y,color));
+
+}
+
+score++;
+
+document.getElementById("score").innerHTML=
+"Fireworks: "+score+" / 20";
+
+if(score>=20){
+
+document.getElementById("msg").style.display="block";
+
+}
+
+}
+
+canvas.onclick=function(e){
+
+firework(e.clientX,e.clientY);
+
+}
+
+function animate(){
+
+ctx.fillStyle="rgba(0,0,20,.25)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+drawStars();
+
+for(let i=particles.length-1;i>=0;i--){
+
+particles[i].update();
+particles[i].draw();
+
+if(particles[i].life<=0){
+
+particles.splice(i,1);
+
+}
+
+}
+
+requestAnimationFrame(animate);
+
+}
+
+animate();
+
+window.onresize=function(){
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+};
+
+</script>
+
+</body>
+</html>
